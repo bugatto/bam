@@ -9,6 +9,7 @@ class Dish {
     /**
      * @Id
      * @Column(name="id", type="integer")
+     * @GeneratedValue(strategy="IDENTITY")
      */
     protected $id;
 

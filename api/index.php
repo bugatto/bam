@@ -8,13 +8,8 @@ require 'vendor/autoload.php';
 
 $app = new \Slim\Slim();
 
-$app->get('/hello/:name', function ($name) {
-    echo "Hello, $name";
-});
-
-$app->get('/test', function () use ($app) {
-
-    $config = Setup::createAnnotationMetadataConfiguration(array(__DIR__."/src/schema"), true);
+function entityManager() {
+    $config = Setup::createAnnotationMetadataConfiguration(array(__DIR__."/src"), true);
     // Set up database connection data
     $conn = array(
         'driver'   => 'pdo_mysql',
@@ -26,9 +21,28 @@ $app->get('/test', function () use ($app) {
     );
 
     $entityManager = EntityManager::create($conn, $config);
+    return $entityManager;
+}
 
-    $dishes = $entityManager->getRepository('Dish')->findAll();
-    echo $dishes[0]->getName();
+$app->get('/hello/:name', function ($name) {
+    echo "Hello, $name";
+});
+
+$app->get('/test', function () use ($app) {
+
+    $dishes = entityManager()->getRepository('Dish')->findAll();
+    foreach ($dishes as $dish) {
+        echo $dish->getName()."<br/>";
+    }
+});
+
+$app->get('/test/:name', function ($name) {
+
+    $dish = new Dish();
+    $dish->setName($name);
+    $entityManager = entityManager();
+    $entityManager->persist($dish);
+    $entityManager->flush();
 });
 
 $app->run();
