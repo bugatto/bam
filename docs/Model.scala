@@ -1,37 +1,55 @@
 /************** DOMAIN MODEL */
 case class Order(product: Product)
 
-/** represents menu item */
-case class Product( name: String,
-                    /** defines a list of products derived from this product */
-                    products: List[Product] = None,
-                    /** defines available toppings for this product */
-                    toppings: List[Topping] = None,
-                    attributeTypes: List[AttributeType] = None)
+case class ProductType(name: String)
 
+/** represents menu item */
+case class Product(name: String,
+                   productType: ProductType,
+                   price: Double = None,
+                   /** defines available toppings for this product */
+                   toppings: List[Topping] = None,
+                   attributes: List[ProductAttribute] = None)
+
+case class Ingredient(name: String)
 case class Topping(name: String)
 
 /** modifier for product */
-case class AttributeType(name: String, attributes: List[Attribute])
-case class Attribute(name: String)
+case class AttributeGroup(name: String)
+case class Attribute(name: String, group: AttributeGroup)
+case class ProductAttribute(attribute: Attribute, price: Double)
 
 /************** TEST CASES */
 
 /* ATTRIBUTES */
-val size = AttributeType("size", List(Attribute("9"), Attribute("12")))
-val cokeVolume = AttributeType("volume", List(Attribute("333ml"), Attribute("500ml")))
-val beerVolume = AttributeType("volume", List(Attribute("HalfPint"), Attribute("Pint")))
+val size = AttributeGroup("size")
+val nineInchSize = Attribute("9 inch", size)
+val twelveInchSize = Attribute("12 inch", size)
 
-/** TOPPINGS */
-val beefTopping: Topping = Topping("beef")
+val volume = AttributeGroup("volume")
+val _250MlVolume: Attribute = Attribute("250ml", volume)
+val _333MlVolume: Attribute = Attribute("333ml", volume)
+val _500MlVolume: Attribute = Attribute("500ml", volume)
+val _1000MlVolume: Attribute = Attribute("1000ml", volume)
 
-val pizza = Product("Pizza",
-                    products = List(
-                      Product("Margherita",
-                              toppings = List(beefTopping),
-                              attributeTypes = List(size)),
-                      Product("Bugagatto", attributeTypes = List(size))
-                    )
+/* TOPPINGS && INGREDIENTS */
+val beef = Ingredient("beef")
+val pork = Ingredient("pork")
+val cucumber = Ingredient("cucumber")
+
+/* PRODUCT TYPES */
+val pizzaProductType = ProductType("pizza")
+
+val Product("Pizza Margherita",
+  price = 10,
+  toppings = List(
+    Ingredient("beef", 2)
+  ),
+  attributes = List(
+    ProductAttribute(nineInchSize, 11),
+    ProductAttribute(twelveInchSize, 14)
+  )
 )
 
-val coke = Product("Coke", attributeTypes = List(size, cokeVolume))
+val coke = Product("Coke", attributes = List(ProductAttribute(_333MlVolume, 5), ProductAttribute(_500MlVolume, 7)))
+
